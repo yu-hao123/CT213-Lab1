@@ -1,0 +1,6 @@
+.vscode/settings.json
+__pycache__/constants.cpython-36.pyc
+__pycache__/roomba.cpython-36.pyc
+__pycache__/utils.cpython-36.pyc
+__pycache__/state_machine.cpython-36.pyc
+__pycache__/simulation.cpython-36.pyc
