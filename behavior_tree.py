@@ -182,8 +182,20 @@ class RoombaBehaviorTree(BehaviorTree):
     Represents a behavior tree of a roomba cleaning robot.
     """
     def __init__(self):
-        super().__init__()
+        super().__init__(SelectorNode("Root"))
         # Todo: construct the tree here
+        move_sequence_node = SequenceNode("Move Sequence")
+        move_sequence_node.add_child(MoveForwardNode())
+        move_sequence_node.add_child(MoveInSpiralNode())
+
+        turn_sequence_node = SequenceNode("Turn Sequence")
+        turn_sequence_node.add_child(GoBackNode())
+        turn_sequence_node.add_child(RotateNode())
+
+        self.root.add_child(move_sequence_node)
+        self.root.add_child(turn_sequence_node)
+        
+
 
 
 class MoveForwardNode(LeafNode):
@@ -193,11 +205,18 @@ class MoveForwardNode(LeafNode):
 
     def enter(self, agent):
         # Todo: add enter logic
+        self.elapsed_time = 0
         pass
 
     def execute(self, agent):
         # Todo: add execution logic
-        pass
+        agent.set_velocity(FORWARD_SPEED, 0)
+        if(self.elapsed_time > MOVE_FORWARD_TIME):
+            return ExecutionStatus.SUCCESS
+        elif(agent.get_bumper_state()):
+            return ExecutionStatus.FAILURE
+        self.elapsed_time += SAMPLE_TIME
+        return ExecutionStatus.RUNNING
 
 
 class MoveInSpiralNode(LeafNode):
@@ -207,11 +226,19 @@ class MoveInSpiralNode(LeafNode):
 
     def enter(self, agent):
         # Todo: add enter logic
+        self.elapsed_time = 0
         pass
 
     def execute(self, agent):
         # Todo: add execution logic
-        pass
+        spiral_radius = INITIAL_RADIUS_SPIRAL + SPIRAL_FACTOR * self.elapsed_time
+        agent.set_velocity(FORWARD_SPEED, FORWARD_SPEED / spiral_radius)
+        if(self.elapsed_time > MOVE_IN_SPIRAL_TIME):
+            return ExecutionStatus.SUCCESS
+        elif(agent.get_bumper_state()):
+            return ExecutionStatus.FAILURE
+        self.elapsed_time += SAMPLE_TIME
+        return ExecutionStatus.RUNNING
 
 
 class GoBackNode(LeafNode):
@@ -221,11 +248,16 @@ class GoBackNode(LeafNode):
 
     def enter(self, agent):
         # Todo: add enter logic
+        self.elapsed_time = 0
         pass
 
     def execute(self, agent):
         # Todo: add execution logic
-        pass
+        agent.set_velocity(BACKWARD_SPEED, 0)
+        if(self.elapsed_time > GO_BACK_TIME):
+            return ExecutionStatus.SUCCESS
+        self.elapsed_time += SAMPLE_TIME
+        return ExecutionStatus.RUNNING
 
 
 class RotateNode(LeafNode):
@@ -235,9 +267,15 @@ class RotateNode(LeafNode):
 
     def enter(self, agent):
         # Todo: add enter logic
+        self.elapsed_time = 0
+        self.random_angle = random.randint(90, 270)
         pass
 
     def execute(self, agent):
         # Todo: add execution logic
-        pass
-
+        rotation_time = (self.random_angle*3.14)/(180*ANGULAR_SPEED)
+        agent.set_velocity(0, ANGULAR_SPEED)
+        if(self.elapsed_time > rotation_time):
+            return ExecutionStatus.SUCCESS
+        self.elapsed_time += SAMPLE_TIME
+        return ExecutionStatus.RUNNING
