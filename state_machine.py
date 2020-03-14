@@ -121,7 +121,7 @@ class RotateState(State):
 
     def check_transition(self, agent, state_machine):
         # Todo: add logic to check and execute state transition
-        rotation_time = self.random_angle*3.14)/(180*ANGULAR_SPEED
+        rotation_time = (self.random_angle*3.14)/(180*ANGULAR_SPEED)
         if(self.elapsed_time > rotation_time):
             state_machine.change_state(MoveForwardState())
         pass
